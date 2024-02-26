@@ -1,7 +1,8 @@
 aerich~=0.7.2
 tortoise-orm~=0.20.0
-flastapi~=0.109.2
+fastapi==0.110.0
 commit-linter~=1.0.3
 uvicorn~=0.27.0.post1
 pydantic[email]
 python-dotenv>=1.0.1
+asyncpg
