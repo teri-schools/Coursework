@@ -31,3 +31,8 @@ pip install -r server\requirements.txt
 ```shell
 uvicorn server.main:app
 ```
+
+# seeder
+```shell
+python -m server:seeder
+```
