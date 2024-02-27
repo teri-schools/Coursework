@@ -1,8 +1,29 @@
-from typing import List, Optional, Any, Annotated, Generic, TypeVar, Union
+import datetime
+from typing import Optional, Generic, TypeVar
 
 from pydantic import BaseModel, EmailStr
 
 TItem = TypeVar('TItem')
+
+
+class CrimeBase(BaseModel):
+    date: Optional[datetime.date] = None
+    location: Optional[str]
+    description: Optional[str]
+    investigation_status: Optional[str]
+
+
+class CrimeCreate(CrimeBase):
+    pass
+
+
+class Crime(CrimeBase):
+    id: int
+    person_id: int
+
+    class Config:
+        orm_mode = True
+
 
 class Pagination(BaseModel, Generic[TItem]):
     page: int
@@ -17,7 +38,7 @@ class Pagination(BaseModel, Generic[TItem]):
 class PersonBase(BaseModel):
     last_name: str
     first_name: str
-    date_of_birth: str = None
+    date_of_birth: datetime.datetime = None
     gender: str = None
     address: str = None
     citizenship: str = None
@@ -35,24 +56,7 @@ class PersonCreate(PersonBase):
 
 class Person(PersonBase):
     id: int
-
-    class Config:
-        orm_mode = True
-
-class CrimeBase(BaseModel):
-    date: Optional[str]
-    location: Optional[str]
-    description: Optional[str]
-    investigation_status: Optional[str]
-
-
-class CrimeCreate(CrimeBase):
-    pass
-
-
-class Crime(CrimeBase):
-    id: int
-    person_id: int
+    crimes: list[Crime]
 
     class Config:
         orm_mode = True
