@@ -1,5 +1,41 @@
-<main class="h-screen w-screen bg-black grid place-items-center">
-  <h2 class="text-white text-9xl">Hello World!</h2>
+<main class="h-screen w-screen bg-background flex gap-6 p-6 text-foreground">
+  <aside class="w-full border max-w-xs p-6">
+    <h5 class="text-primary underline">Administrator panel</h5>
+    <ul class='border-l-2 border-gray-500 border-dotted pt-4 text-foreground/70 columns-1 text-sm'>
+      <li class='flex items-center gap-x-2 h-fit'>
+        <div class="border-b-2 border-dotted border-gray-500 my-4 w-8"></div>
+        <p>BL-1</p>
+      </li>
+
+      <li class='flex items-center gap-x-2'>
+        <div class="border-b-2 border-dotted border-gray-500 my-4 w-8"></div>
+        <p>BL-2</p>
+      </li>
+
+      <li class='mt-12 flex items-center gap-x-2'>
+        <div class="border-b-2 border-dotted border-gray-500 my-4 w-1/3"></div>
+        <p class='transition-all hover:underline cursor-pointer'>End of data: [Load More]</p>
+      </li>
+    </ul>
+  </aside>
+  <div class="w-full border flex flex-col">
+    <div class='relative w-full flex-grow'>
+      <div id="chartdiv" className='p-4' style="width: 100%; height: 100%"></div>
+    </div>
+    <div class='relative h-full max-h-[360px]'>
+      <div class='border-y px-2'>
+        <h4 class='uppercase text-xl'>Crimes Data:</h4>
+      </div>
+      <div class='absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] text-lg text-destructive'>
+        No Data Chosen
+      </div>
+    </div>
+  </div>
+  <aside class='w-full border grid place-items-center p-6 max-w-xs'>
+    <div class='text-center'>
+      <h2 class='text-destructive text-lg'>No Data Chosen</h2>
+    </div>
+  </aside>
 </main>
 
 
