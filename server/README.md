@@ -27,6 +27,11 @@ source .venv\bin\activate
 pip install -r server\requirements.txt
 ```
 
+# Help command
+```shell
+python -m server --help
+```
+
 # Run server
 ```shell
 uvicorn server.main:app
@@ -34,5 +39,5 @@ uvicorn server.main:app
 
 # seeder
 ```shell
-python -m server:seeder
+python -m server.seeder
 ```
