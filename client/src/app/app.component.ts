@@ -5,19 +5,25 @@ import am5geodata_worldLow from '@amcharts/amcharts5-geodata/worldLow';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
 import * as am5map from '@amcharts/amcharts5/map';
 import * as am5 from '@amcharts/amcharts5';
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { PersonsService } from '../service/persons.service';
+import { PaginatedData } from '../types';
+import { IPerson } from '../types/persons';
+import AmchartsUtil from '../utils/amcharts.util';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.component.html',
 })
 export class AppComponent {
   private root!: am5.Root;
+  public persons: PaginatedData<IPerson> | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
+    private personService: PersonsService,
     private zone: NgZone
   ) {}
 
@@ -29,9 +35,20 @@ export class AppComponent {
     }
   }
 
-  ngAfterViewInit() {
+  ngOnInit() {
+    this.personService.list().subscribe((data) => {
+      this.persons = data;
+      this.initMap();
+    });
+  }
+
+  initMap() {
     this.browserOnly(() => {
-      let root = am5.Root.new('chartdiv');
+      if (this.persons === null) {
+        throw new Error('Persons data is null');
+      }
+
+      const root = am5.Root.new('chartdiv');
       root._logo?.dispose();
 
       // Set themes
@@ -147,10 +164,9 @@ export class AppComponent {
             strokeOpacity: 0,
           })
         );
-
-        let circle2 = container.children.push(
+        container.children.push(
           am5.Circle.new(root, {
-            radius: 4,
+            radius: 5,
             tooltipY: 0,
             fill: colorset.next(),
             strokeOpacity: 0,
@@ -161,7 +177,7 @@ export class AppComponent {
         circle.animate({
           key: 'scale',
           from: 1,
-          to: 5,
+          to: 3,
           duration: 600,
           easing: am5.ease.out(am5.ease.cubic),
           loops: Infinity,
@@ -180,123 +196,17 @@ export class AppComponent {
         });
       });
 
-      let cities = [
-        {
-          title: 'Brussels',
-          latitude: 50.8371,
-          longitude: 4.3676,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Copenhagen',
-          latitude: 55.6763,
-          longitude: 12.5681,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Paris',
-          latitude: 48.8567,
-          longitude: 2.351,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Reykjavik',
-          latitude: 64.1353,
-          longitude: -21.8952,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Moscow',
-          latitude: 55.7558,
-          longitude: 37.6176,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Madrid',
-          latitude: 40.4167,
-          longitude: -3.7033,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'London',
-          latitude: 51.5002,
-          longitude: -0.1262,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Peking',
-          latitude: 39.9056,
-          longitude: 116.3958,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'New Delhi',
-          latitude: 28.6353,
-          longitude: 77.225,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Tokyo',
-          latitude: 35.6785,
-          longitude: 139.6823,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Ankara',
-          latitude: 39.9439,
-          longitude: 32.856,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Buenos Aires',
-          latitude: -34.6118,
-          longitude: -58.4173,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Brasilia',
-          latitude: -15.7801,
-          longitude: -47.9292,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Ottawa',
-          latitude: 45.4235,
-          longitude: -75.6979,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Washington',
-          latitude: 38.8921,
-          longitude: -77.0241,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Kinshasa',
-          latitude: -4.3369,
-          longitude: 15.3271,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Cairo',
-          latitude: 30.0571,
-          longitude: 31.2272,
-          url: 'http://www.amcharts.com',
-        },
-        {
-          title: 'Pretoria',
-          latitude: -25.7463,
-          longitude: 28.1876,
-          url: 'http://www.amcharts.com',
-        },
-      ];
-
-      for (var i = 0; i < cities.length; i++) {
-        let city = cities[i];
-        addCity(city.longitude, city.latitude, city.title, city.url);
+      for (const person of this.persons.items) {
+        const coords = AmchartsUtil.generateCoords();
+        addPlace(coords.longitude, coords.latitude, `${person.first_name} ${person.last_name}`, person.id.toString());
       }
 
-      function addCity(longitude: number, latitude: number, title: string, url: string) {
+      function addPlace(
+        longitude: number,
+        latitude: number,
+        title: string,
+        url: string
+      ) {
         pointSeries.data.push({
           url: url,
           geometry: { type: 'Point', coordinates: [longitude, latitude] },

@@ -1,22 +1,19 @@
 <main class="h-screen w-screen bg-background flex gap-6 p-6 text-foreground">
   <aside class="w-full border max-w-xs p-6">
     <h5 class="text-primary underline">Administrator panel</h5>
-    <ul class='border-l-2 border-gray-500 border-dotted pt-4 text-foreground/70 columns-1 text-sm'>
-      <li class='flex items-center gap-x-2 h-fit'>
-        <div class="border-b-2 border-dotted border-gray-500 my-4 w-8"></div>
-        <p>BL-1</p>
-      </li>
-
-      <li class='flex items-center gap-x-2'>
-        <div class="border-b-2 border-dotted border-gray-500 my-4 w-8"></div>
-        <p>BL-2</p>
-      </li>
-
-      <li class='mt-12 flex items-center gap-x-2'>
-        <div class="border-b-2 border-dotted border-gray-500 my-4 w-1/3"></div>
-        <p class='transition-all hover:underline cursor-pointer'>End of data: [Load More]</p>
-      </li>
-    </ul>
+    <div class='max-h-full overflow-y-auto border-l-2 border-gray-500 border-dotted'>
+      <ul *ngIf="persons !== null" class='pt-4 text-foreground/70 columns-1 text-sm'>
+        <li class='flex items-center gap-x-2 h-fit' *ngFor="let person of persons.items">
+          <div class="border-b-2 border-dotted border-gray-500 my-4 w-8"></div>
+          <p>{{person.first_name}} {{person.last_name}}</p>
+        </li>
+    
+        <li class='mt-12 flex items-center gap-x-2'>
+          <div class="border-b-2 border-dotted border-gray-500 my-4 w-1/3"></div>
+          <p class='transition-all hover:underline cursor-pointer'>End of data: [Load More]</p>
+        </li>
+      </ul>
+    </div>
   </aside>
   <div class="w-full border flex flex-col">
     <div class='relative w-full flex-grow'>
