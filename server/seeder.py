@@ -9,11 +9,13 @@ from server.models import Person, Crime
 
 PhoneNumberProvider.formats = ('+38-###-###-####',)
 
+
 async def create_seed_data():
     await Tortoise.init(
         db_url=DATABASE_URL,
         modules={"models": ["server.models"]}
     )
+
     await Tortoise.generate_schemas()
 
     fake = Faker(locale='en_US')
@@ -25,6 +27,7 @@ async def create_seed_data():
             date_of_birth=fake.date_of_birth(),
             gender=fake.random_element(elements=('Male', 'Female')),
             address=fake.address(),
+            position=','.join(fake.location_on_land(True)),
             citizenship=fake.country(),
             phone_number=fake.phone_number(),
             email=fake.email(),

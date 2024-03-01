@@ -8,6 +8,7 @@ class Person(Model):
     date_of_birth = fields.DateField()
     gender = fields.CharField(max_length=10)
     address = fields.CharField(max_length=255)
+    position = fields.CharField(max_length=255)
     citizenship = fields.CharField(max_length=255)
     phone_number = fields.CharField(max_length=20)
     email = fields.CharField(max_length=255)
