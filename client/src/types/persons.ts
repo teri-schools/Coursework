@@ -1,9 +1,12 @@
+import type { ICrime } from "./crimes";
+
 export interface IPerson {
   id: number;
   last_name: string;
   first_name: string;
   date_of_birth: string;
   gender: 'Male' | 'Female';
+  crimes: ICrime[];
   address: string;
   position: string;
   citizenship: string;

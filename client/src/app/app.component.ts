@@ -9,8 +9,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PersonsService } from '../service/persons.service';
 import { PaginatedData } from '../types';
 import { IPerson } from '../types/persons';
-import AmchartsUtil from '../utils/amcharts.util';
 import { finalize } from 'rxjs';
+import { ObjectUtils } from '../utils';
 
 @Component({
   selector: 'app-root',
@@ -21,9 +21,11 @@ import { finalize } from 'rxjs';
 export class AppComponent {
   private root!: am5.Root;
   public persons: PaginatedData<IPerson> | null = null;
+  public target: IPerson | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
+    private ngZone: NgZone,
     private personService: PersonsService,
     private zone: NgZone
   ) {}
@@ -61,14 +63,6 @@ export class AppComponent {
         })
       );
 
-      const container = chart.children.push(
-        am5.Container.new(root, {
-          layout: root.horizontalLayout,
-          x: 20,
-          y: 40,
-        })
-      );
-
       const backgroundSeries = chart.series.push(
         am5map.MapPolygonSeries.new(root, {})
       );
@@ -95,7 +89,9 @@ export class AppComponent {
         strokeOpacity: 0.3,
       });
 
-      const pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
+      const pointSeries = chart.series.push(
+        am5map.MapPointSeries.new(root, {})
+      );
       const colorset = am5.ColorSet.new(root, {});
 
       pointSeries.bullets.push(() => {
@@ -104,8 +100,23 @@ export class AppComponent {
           cursorOverStyle: 'pointer',
         });
 
-        container.events.on('click', (e: any) => {
-          window.location.href = e.target.dataItem.dataContext.url;
+        container.events.on('click', ({ target }) => {
+          this.ngZone.run(() => {
+            const context = target.dataItem?.dataContext;
+
+            if (
+              !ObjectUtils.isObject(context) ||
+              !ObjectUtils.hasOwnProperty(context, 'personId')
+            ) {
+              return;
+            }
+
+            const newTarget = this.persons?.items.find(
+              ({ id }) => id === context.personId
+            );
+            this.target = newTarget ?? null;
+            console.log('this.target', this.target);
+          });
         });
 
         const circle = container.children.push(
@@ -149,14 +160,16 @@ export class AppComponent {
       });
 
       if (this.persons) {
-        console.log(this.persons.items[0]);
         for (const person of this.persons.items) {
-          const [longitude, latitude] = person.position.trim().split(',').map(Number);
+          const [latitude, longitude] = person.position
+            .trim()
+            .split(',')
+            .map(Number);
           addPlace(
             longitude,
             latitude,
             `${person.first_name} ${person.last_name}`,
-            person.id.toString()
+            person.id
           );
         }
       }
@@ -165,10 +178,10 @@ export class AppComponent {
         longitude: number,
         latitude: number,
         title: string,
-        url: string
+        personId: number
       ) {
         pointSeries.data.push({
-          url: url,
+          personId,
           geometry: { type: 'Point', coordinates: [longitude, latitude] },
           title: title,
         });
