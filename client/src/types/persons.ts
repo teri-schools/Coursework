@@ -5,6 +5,7 @@ export interface IPerson {
   date_of_birth: string;
   gender: 'Male' | 'Female';
   address: string;
+  position: string;
   citizenship: string;
   phone_number: string;
   email: string;

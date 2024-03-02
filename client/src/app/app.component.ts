@@ -10,6 +10,7 @@ import { PersonsService } from '../service/persons.service';
 import { PaginatedData } from '../types';
 import { IPerson } from '../types/persons';
 import AmchartsUtil from '../utils/amcharts.util';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -36,28 +37,21 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.personService.list().subscribe((data) => {
-      this.persons = data;
-      this.initMap();
-    });
+    this.personService
+      .list()
+      .pipe(finalize(() => this.initMap()))
+      .subscribe((data) => {
+        this.persons = data;
+      });
   }
 
   initMap() {
     this.browserOnly(() => {
-      if (this.persons === null) {
-        throw new Error('Persons data is null');
-      }
-
       const root = am5.Root.new('chartdiv');
       root._logo?.dispose();
-
-      // Set themes
-      // https://www.amcharts.com/docs/v5/concepts/themes/
       root.setThemes([am5themes_Animated.new(root)]);
 
-      // Create the map chart
-      // https://www.amcharts.com/docs/v5/charts/map-chart/
-      let chart = root.container.children.push(
+      const chart = root.container.children.push(
         am5map.MapChart.new(root, {
           panX: 'rotateX',
           panY: 'translateY',
@@ -67,7 +61,7 @@ export class AppComponent {
         })
       );
 
-      let cont = chart.children.push(
+      const container = chart.children.push(
         am5.Container.new(root, {
           layout: root.horizontalLayout,
           x: 20,
@@ -75,58 +69,16 @@ export class AppComponent {
         })
       );
 
-      // Add labels and controls
-      cont.children.push(
-        am5.Label.new(root, {
-          centerY: am5.p50,
-          text: 'Map',
-        })
-      );
-
-      let switchButton = cont.children.push(
-        am5.Button.new(root, {
-          themeTags: ['switch'],
-          centerY: am5.p50,
-          icon: am5.Circle.new(root, {
-            themeTags: ['icon'],
-          }),
-        })
-      );
-
-      switchButton.on('active', function () {
-        if (!switchButton.get('active')) {
-          chart.set('projection', am5map.geoMercator());
-          chart.set('panY', 'translateY');
-          chart.set('rotationY', 0);
-          backgroundSeries.mapPolygons.template.set('fillOpacity', 0);
-        } else {
-          chart.set('projection', am5map.geoOrthographic());
-          chart.set('panY', 'rotateY');
-
-          backgroundSeries.mapPolygons.template.set('fillOpacity', 0.1);
-        }
-      });
-
-      cont.children.push(
-        am5.Label.new(root, {
-          centerY: am5.p50,
-          text: 'Globe',
-        })
-      );
-
-      // Create series for background fill
-      // https://www.amcharts.com/docs/v5/charts/map-chart/map-polygon-series/#Background_polygon
-      let backgroundSeries = chart.series.push(
+      const backgroundSeries = chart.series.push(
         am5map.MapPolygonSeries.new(root, {})
       );
+
       backgroundSeries.mapPolygons.template.setAll({
         fill: root.interfaceColors.get('alternativeBackground'),
         fillOpacity: 0,
         strokeOpacity: 0,
       });
 
-      // Add background polygon
-      // https://www.amcharts.com/docs/v5/charts/map-chart/map-polygon-series/#Background_polygon
       backgroundSeries.data.push({
         geometry: am5map.getGeoRectangle(90, 180, -90, -180),
       });
@@ -137,17 +89,17 @@ export class AppComponent {
         })
       );
 
-      let lineSeries = chart.series.push(am5map.MapLineSeries.new(root, {}));
+      const lineSeries = chart.series.push(am5map.MapLineSeries.new(root, {}));
       lineSeries.mapLines.template.setAll({
         stroke: root.interfaceColors.get('alternativeBackground'),
         strokeOpacity: 0.3,
       });
 
-      let pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
-      let colorset = am5.ColorSet.new(root, {});
+      const pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
+      const colorset = am5.ColorSet.new(root, {});
 
-      pointSeries.bullets.push(function () {
-        let container = am5.Container.new(root, {
+      pointSeries.bullets.push(() => {
+        const container = am5.Container.new(root, {
           tooltipText: '{title}',
           cursorOverStyle: 'pointer',
         });
@@ -156,7 +108,7 @@ export class AppComponent {
           window.location.href = e.target.dataItem.dataContext.url;
         });
 
-        let circle = container.children.push(
+        const circle = container.children.push(
           am5.Circle.new(root, {
             radius: 4,
             tooltipY: 0,
@@ -196,9 +148,17 @@ export class AppComponent {
         });
       });
 
-      for (const person of this.persons.items) {
-        const coords = AmchartsUtil.generateCoords();
-        addPlace(coords.longitude, coords.latitude, `${person.first_name} ${person.last_name}`, person.id.toString());
+      if (this.persons) {
+        console.log(this.persons.items[0]);
+        for (const person of this.persons.items) {
+          const [longitude, latitude] = person.position.trim().split(',').map(Number);
+          addPlace(
+            longitude,
+            latitude,
+            `${person.first_name} ${person.last_name}`,
+            person.id.toString()
+          );
+        }
       }
 
       function addPlace(

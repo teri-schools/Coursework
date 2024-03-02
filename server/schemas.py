@@ -41,7 +41,7 @@ class PersonBase(BaseModel):
     date_of_birth: datetime.datetime = None
     gender: str = None
     address: str = None
-    possiton: str = None
+    position: str = None
     citizenship: str = None
     phone_number: str = None
     email: EmailStr = None
