@@ -28,7 +28,7 @@ export abstract class BaseService<T> {
     return this._http.delete<T>(`${this._url}/${id}`);
   }
 
-  list(): Observable<PaginatedData<T>> {
-    return this._http.get<PaginatedData<T>>(this._url);
+  list(page: number = 1): Observable<PaginatedData<T>> {
+    return this._http.get<PaginatedData<T>>(this._url, { params: { page, per_page: 20 }});
   }
 }

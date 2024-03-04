@@ -30,17 +30,46 @@ export class AppComponent {
     private zone: NgZone
   ) {}
 
-  browserOnly(f: () => void) {
+  browserOnly(callback: () => void) {
     if (isPlatformBrowser(this.platformId)) {
-      this.zone.runOutsideAngular(() => {
-        f();
-      });
+      this.zone.runOutsideAngular(callback);
     }
   }
 
   ngOnInit() {
     this.personService
       .list()
+      .pipe(finalize(() => this.initMap()))
+      .subscribe((data) => {
+        this.persons = data;
+      });
+  }
+
+  fetchPrevious() {
+    if (!this.persons) {
+      throw new Error('Persons are unavaiable')
+    }
+    const previousPage = this.persons.page - 1;
+    if (previousPage < 1) {
+      return;
+    }
+    return this.fetchPersons(previousPage);
+  }
+
+  fetchNext() {
+    if (!this.persons) {
+      throw new Error('Persons are unavaiable')
+    }
+    const nextPage = this.persons.page + 1;
+    if (nextPage > this.persons.total / this.persons.per_page) {
+      return;
+    }
+    return this.fetchPersons(nextPage);
+  }
+
+  fetchPersons(page: number = 1) {
+    this.personService
+      .list(page)
       .pipe(finalize(() => this.initMap()))
       .subscribe((data) => {
         this.persons = data;
@@ -68,7 +97,6 @@ export class AppComponent {
       );
 
       backgroundSeries.mapPolygons.template.setAll({
-        fill: root.interfaceColors.get('alternativeBackground'),
         fillOpacity: 0,
         strokeOpacity: 0,
       });
@@ -80,6 +108,7 @@ export class AppComponent {
       chart.series.push(
         am5map.MapPolygonSeries.new(root, {
           geoJSON: am5geodata_worldLow,
+          fill: am5.Color.fromRGB(199, 15, 15),
         })
       );
 
@@ -115,7 +144,6 @@ export class AppComponent {
               ({ id }) => id === context.personId
             );
             this.target = newTarget ?? null;
-            console.log('this.target', this.target);
           });
         });
 
@@ -123,7 +151,7 @@ export class AppComponent {
           am5.Circle.new(root, {
             radius: 4,
             tooltipY: 0,
-            fill: colorset.next(),
+            fill: am5.Color.fromRGB(255, 255, 255),
             strokeOpacity: 0,
           })
         );
@@ -131,7 +159,7 @@ export class AppComponent {
           am5.Circle.new(root, {
             radius: 5,
             tooltipY: 0,
-            fill: colorset.next(),
+            fill: am5.Color.fromRGB(255, 255, 255),
             strokeOpacity: 0,
             tooltipText: '{title}',
           })
