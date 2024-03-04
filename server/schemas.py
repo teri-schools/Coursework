@@ -9,6 +9,7 @@ TItem = TypeVar('TItem')
 class CrimeBase(BaseModel):
     date: Optional[datetime.date] = None
     location: Optional[str]
+    position: str
     description: Optional[str]
     investigation_status: Optional[str]
 

@@ -33,10 +33,12 @@ async def create_seed_data():
             email=fake.email(),
             country_of_birth=fake.country()
         )
-        for _ in range(randint(0, 5)):
+        for _ in range(randint(0, 20)):
+            (latitude, longitude, place_name, country_code, timezone) = fake.location_on_land(True)
             await Crime.create(
                 date=fake.date_this_decade(),
-                location=fake.address(),
+                location=place_name,
+                position=",".join([latitude, longitude]),
                 description=fake.sentence(),
                 investigation_status=fake.random_element(elements=('Open', 'Closed')),
                 person=person

@@ -25,13 +25,6 @@ def seeder():
     """
     import server.seeder
 
-@cli.command("seeder")
-def seeder():
-    """
-    Command to execute the seeder script.
-    """
-    import server.seeder
-
 
 if __name__ == "__main__":
     cli()
