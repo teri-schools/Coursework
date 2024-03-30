@@ -16,14 +16,14 @@ async def get_persons(page: int = 1, per_page: int = 50):
 
 @person_router.post("/", status_code=201)
 async def create_person(person_data: sch.PersonCreate) -> sch.Person:
-    return await person_repo.create_model(person_data.to_dict())
+    return await person_repo.create(person_data.to_dict())
 
 
 @person_router.get("/{ident}", status_code=201)
 async def get_person(ident: int) -> sch.Person:
-    return await person_repo.get_model(ident)
+    return await person_repo.get(ident)
 
 
 @person_router.delete("/{ident}", status_code=200)
 async def delete_person(ident: int) -> None:
-    return await person_repo.delete_model(ident)
+    return await person_repo.delete(ident)

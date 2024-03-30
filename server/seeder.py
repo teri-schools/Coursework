@@ -37,6 +37,7 @@ async def create_seed_data():
             await Crime.create(
                 date=fake.date_this_decade(),
                 location=fake.address(),
+                position=','.join(fake.location_on_land(True)),
                 description=fake.sentence(),
                 investigation_status=fake.random_element(elements=('Open', 'Closed')),
                 person=person

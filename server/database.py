@@ -29,7 +29,7 @@ class Repository:
             raise HTTPException(status_code=404, detail="Not found")
         return obj
 
-    async def delete_model(self, ident: int):
+    async def delete(self, ident: int):
         obj: Model = await self.model.get_or_none(ident)
         if obj:
             await obj.delete()
