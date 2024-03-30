@@ -27,3 +27,9 @@
   --input: 240 3.7% 15.9%;
   --ring: 346.8 77.2% 49.8%;
 }
+
+@layer components {
+  .input {
+    @apply w-full py-1 px-4 border border-border transition-colors outline-none bg-transparent focus:border-primary hover:border-white;
+  }
+}
