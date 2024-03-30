@@ -19,6 +19,7 @@ class Crime(Model):
     id = fields.IntField(pk=True)
     date = fields.DateField()
     location = fields.CharField(max_length=255)
+    position = fields.CharField(max_length=255)
     description = fields.TextField()
     investigation_status = fields.CharField(max_length=255)
     person = fields.ForeignKeyField("models.Person", related_name="crimes")
