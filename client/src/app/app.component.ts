@@ -7,28 +7,38 @@ import * as am5map from '@amcharts/amcharts5/map';
 import * as am5 from '@amcharts/amcharts5';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PersonsService } from '../service/persons.service';
-import { PaginatedData } from '../types';
 import { IPerson } from '../types/persons';
 import { finalize } from 'rxjs';
 import { ObjectUtils } from '../utils';
+import { CreateCrimeFormComponent } from './crime/create-crime-form.component';
+import { PersonDetailsComponent } from './person/person-details.component';
+import { CrimesTableComponent } from './crime/crimes-table-component';
+import { PersonManager } from '../managers/person.manager';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [
+    RouterOutlet,
+    CommonModule,
+    CreateCrimeFormComponent,
+    CrimesTableComponent,
+    PersonDetailsComponent,
+  ],
   templateUrl: './app.component.html',
 })
-export class AppComponent {
+export class AppComponent extends PersonManager {
   private root!: am5.Root;
-  public persons: PaginatedData<IPerson> | null = null;
   public target: IPerson | null = null;
 
   constructor(
+    personService: PersonsService,
     @Inject(PLATFORM_ID) private platformId: Object,
     private ngZone: NgZone,
-    private personService: PersonsService,
     private zone: NgZone
-  ) {}
+  ) {
+    super(personService, () => this.initMap());
+  }
 
   browserOnly(callback: () => void) {
     if (isPlatformBrowser(this.platformId)) {
@@ -39,37 +49,6 @@ export class AppComponent {
   ngOnInit() {
     this.personService
       .list()
-      .pipe(finalize(() => this.initMap()))
-      .subscribe((data) => {
-        this.persons = data;
-      });
-  }
-
-  fetchPrevious() {
-    if (!this.persons) {
-      throw new Error('Persons are unavaiable');
-    }
-    const previousPage = this.persons.page - 1;
-    if (previousPage < 1) {
-      return;
-    }
-    return this.fetchPersons(previousPage);
-  }
-
-  fetchNext() {
-    if (!this.persons) {
-      throw new Error('Persons are unavaiable');
-    }
-    const nextPage = this.persons.page + 1;
-    if (nextPage > this.persons.total / this.persons.per_page) {
-      return;
-    }
-    return this.fetchPersons(nextPage);
-  }
-
-  fetchPersons(page: number = 1) {
-    this.personService
-      .list(page)
       .pipe(finalize(() => this.initMap()))
       .subscribe((data) => {
         this.persons = data;
@@ -209,26 +188,13 @@ export class AppComponent {
             .trim()
             .split(',')
             .map(Number);
-          addPlace(
-            longitude,
-            latitude,
-            `${person.first_name} ${person.last_name}`,
-            person.id
-          );
-        }
-      }
 
-      function addPlace(
-        longitude: number,
-        latitude: number,
-        title: string,
-        personId: number
-      ) {
-        pointSeries.data.push({
-          personId,
-          geometry: { type: 'Point', coordinates: [longitude, latitude] },
-          title: title,
-        });
+          pointSeries.data.push({
+            personId: person.id,
+            geometry: { type: 'Point', coordinates: [longitude, latitude] },
+            title: `${person.first_name} ${person.last_name}`,
+          });
+        }
       }
 
       chart.appear(1000, 100);
