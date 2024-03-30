@@ -47,7 +47,7 @@ export class AppComponent {
 
   fetchPrevious() {
     if (!this.persons) {
-      throw new Error('Persons are unavaiable')
+      throw new Error('Persons are unavaiable');
     }
     const previousPage = this.persons.page - 1;
     if (previousPage < 1) {
@@ -58,7 +58,7 @@ export class AppComponent {
 
   fetchNext() {
     if (!this.persons) {
-      throw new Error('Persons are unavaiable')
+      throw new Error('Persons are unavaiable');
     }
     const nextPage = this.persons.page + 1;
     if (nextPage > this.persons.total / this.persons.per_page) {
@@ -74,6 +74,23 @@ export class AppComponent {
       .subscribe((data) => {
         this.persons = data;
       });
+  }
+
+  setTarget(person: IPerson) {
+    this.target = person;
+
+    const chart = this.root?.container.children.getIndex(0);
+
+    console.log(chart instanceof am5map.MapChart);
+
+    if (chart instanceof am5map.MapChart) {
+      const [latitude, longitude] = this.target.position
+        .trim()
+        .split(',')
+        .map(Number);
+
+      chart.zoomToGeoPoint({ latitude, longitude }, 10, true, 1000);
+    }
   }
 
   initMap() {
@@ -121,7 +138,6 @@ export class AppComponent {
       const pointSeries = chart.series.push(
         am5map.MapPointSeries.new(root, {})
       );
-      const colorset = am5.ColorSet.new(root, {});
 
       pointSeries.bullets.push(() => {
         const container = am5.Container.new(root, {
@@ -143,7 +159,7 @@ export class AppComponent {
             const newTarget = this.persons?.items.find(
               ({ id }) => id === context.personId
             );
-            this.target = newTarget ?? null;
+            if (newTarget) this.setTarget(newTarget);
           });
         });
 
@@ -215,7 +231,6 @@ export class AppComponent {
         });
       }
 
-      // Make stuff animate on load
       chart.appear(1000, 100);
       this.root = root;
     });
