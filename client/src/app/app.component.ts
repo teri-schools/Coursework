@@ -1,3 +1,4 @@
+import type { IPerson } from '../types/persons';
 import { Component, Inject, NgZone, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
@@ -7,7 +8,6 @@ import * as am5map from '@amcharts/amcharts5/map';
 import * as am5 from '@amcharts/amcharts5';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PersonsService } from '../service/persons.service';
-import { IPerson } from '../types/persons';
 import { finalize } from 'rxjs';
 import { ObjectUtils } from '../utils';
 import { CreateCrimeFormComponent } from './crime/create-crime-form.component';
@@ -57,11 +57,7 @@ export class AppComponent extends PersonManager {
 
   setTarget(person: IPerson) {
     this.target = person;
-
     const chart = this.root?.container.children.getIndex(0);
-
-    console.log(chart instanceof am5map.MapChart);
-
     if (chart instanceof am5map.MapChart) {
       const [latitude, longitude] = this.target.position
         .trim()

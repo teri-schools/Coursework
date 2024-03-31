@@ -53,7 +53,7 @@ import { NgIf } from '@angular/common';
         <span>Email</span>
         <span>{{ person.email }}</span>
       </li>
-      <li class="flex space-x-2 justify-between">
+      <li class="flex space-x-2 justify-between truncate">
         <span>Country of Birth</span>
         <span>{{ person.country_of_birth }}</span>
       </li>

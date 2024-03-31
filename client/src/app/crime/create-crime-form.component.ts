@@ -11,6 +11,7 @@ import { CrimesService } from '../../service/crimes.service';
   template: `
     <form
       (ngSubmit)="onSubmit(postCrimeForm)"
+      ngNativeValidate
       #postCrimeForm="ngForm"
       class="space-y-2 my-4"
     >
@@ -23,6 +24,7 @@ import { CrimesService } from '../../service/crimes.service';
           class="input"
           type="date"
           placeholder="Date"
+          max="{{ maxDate }}"
           ngModel
           required
         />
@@ -64,9 +66,14 @@ export class CreateCrimeFormComponent {
   @Input() target!: IPerson;
   @Input() onCrimeCreate!: (crime: ICrime) => void;
 
+  public maxDate = new Date().toISOString().split('T')[0];
   constructor(private crimesService: CrimesService) {}
 
   onSubmit(form: NgForm) {
+    if (!form.valid) {
+      alert('Please fill out all fields.');
+      return;
+    }
     const crime: PartialCrime = {
       date: form.value.date,
       location: form.value.location,
